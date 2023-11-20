@@ -3,14 +3,16 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QTableWidgetItem
 from PyQt5 import uic
 import sqlite3
 from PyQt5.QtWidgets import QDialog
+from ui.main import Ui_MainWindow as Main_ui
+from ui.addEditCoffeeForm import Ui_Dialog as Dialog_ui
 
 
-class CoffeeInfo(QMainWindow):
+class CoffeeInfo(QMainWindow, Main_ui):
     def __init__(self):
         super().__init__()
         self.addEditForm = None
-        uic.loadUi('main.ui', self)
-        self.conn = sqlite3.connect('coffee.sqlite')
+        self.setupUi(self)
+        self.conn = sqlite3.connect('data/coffee.sqlite')
         cursor = self.conn.cursor()
         rows = cursor.execute("SELECT * FROM coffee").fetchall()
         self.tableWidget.setRowCount(len(rows))
@@ -32,7 +34,7 @@ class CoffeeInfo(QMainWindow):
         self.tableWidget.clear()
         self.tableWidget.setColumnCount(7)
         self.tableWidget.setHorizontalHeaderLabels(
-        ["ID", "Название сорта", "Степень обжарки", "Молотый/в зернах", "Описание вкуса", "Цена", "Объем упаковки"])
+            ["ID", "Название сорта", "Степень обжарки", "Молотый/в зернах", "Описание вкуса", "Цена", "Объем упаковки"])
         rows = self.conn.cursor().execute("SELECT * FROM coffee").fetchall()
         self.tableWidget.setRowCount(len(rows))
         for i, row in enumerate(rows):
@@ -45,12 +47,12 @@ class CoffeeInfo(QMainWindow):
         event.accept()
 
 
-class Form(QDialog):
+class Form(QDialog, Dialog_ui):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
-        uic.loadUi('addEditCoffeeForm.ui', self)
-        self.connection = sqlite3.connect("coffee.sqlite")
+        self.setupUi(self)
+        self.connection = sqlite3.connect("data/coffee.sqlite")
         self.cancel.clicked.connect(self.close)
         self.save.clicked.connect(self.save_action)
         self.index = self.parent.tableWidget.selectedIndexes()
